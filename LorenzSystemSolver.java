@@ -9,10 +9,22 @@ public class LorenzSystemSolver {
 		case 1:
 			return backwardEulerMethod(r, sx, sy, sz, dt, n);
 		case 2:
-			return simpleEulerMethod(r, sx, sy, sz, dt, n);
+			return rungeKuttaMethod(r, sx, sy, sz, dt, n);
 		default:
 			return simpleEulerMethod(r, sx, sy, sz, dt, n);
 		}
+	}
+
+	static double dX(double x, double y) {
+		return SIGMA * (y - x);
+	}
+
+	static double dY(double x, double y, double z, double r) {
+		return x * (r - z) - y;
+	}
+
+	static double dZ(double x, double y, double z) {
+		return x * y - BETA * z;
 	}
 
 	static double[][] simpleEulerMethod(double r, double sx, double sy, double sz, double dt, int n) {
@@ -22,9 +34,9 @@ public class LorenzSystemSolver {
 		z[0] = sz;
 
 		for (int i = 1; i < n; i++) {
-			x[i] = x[i - 1] + (SIGMA * (y[i - 1] - x[i - 1])) * dt;
-			y[i] = y[i - 1] + (x[i - 1] * (r - z[i - 1]) - y[i - 1]) * dt;
-			z[i] = z[i - 1] + (x[i - 1] * y[i - 1] - BETA * z[i - 1]) * dt;
+			x[i] = x[i - 1] + dX(x[i - 1], y[i - 1]) * dt;
+			y[i] = y[i - 1] + dY(x[i - 1], y[i - 1], z[i - 1], r) * dt;
+			z[i] = z[i - 1] + dZ(x[i - 1], y[i - 1], z[i - 1]) * dt;
 		}
 
 		return new double[][] { x, y, z };
@@ -61,6 +73,39 @@ public class LorenzSystemSolver {
 			z[i] = wa + wb - qb / (3 * qa);
 			y[i] = (pa + pb * z[i]) / (pg + pd * z[i]);
 			x[i] = (c / a) - y[i] * (b / a);
+		}
+
+		return new double[][] { x, y, z };
+	}
+
+	static double[][] rungeKuttaMethod(double r, double sx, double sy, double sz, double dt, int n) {
+		double[] x = new double[n], y = new double[n], z = new double[n];
+		x[0] = sx;
+		y[0] = sy;
+		z[0] = sz;
+
+		for (int i = 1; i < n; i++) {
+
+			double kx1 = dX(x[i - 1], y[i - 1]) * dt / 2;
+			double ky1 = dY(x[i - 1], y[i - 1], z[i - 1], r) * dt / 2;
+			double kz1 = dZ(x[i - 1], y[i - 1], z[i - 1]) * dt / 2;
+
+			double kx2 = dX(x[i - 1] + kx1, y[i - 1] + ky1) * dt / 2;
+			double ky2 = dY(x[i - 1] + kx1, y[i - 1] + ky1, z[i - 1] + kz1, r) * dt / 2;
+			double kz2 = dZ(x[i - 1] + kx1, y[i - 1] + ky1, z[i - 1] + kz1) * dt / 2;
+
+			double kx3 = dX(x[i - 1] + kx2, y[i - 1] + ky2) * dt;
+			double ky3 = dY(x[i - 1] + kx2, y[i - 1] + ky2, z[i - 1] + kz2, r) * dt;
+			double kz3 = dZ(x[i - 1] + kx2, y[i - 1] + ky2, z[i - 1] + kz2) * dt;
+
+			double kx4 = dX(x[i - 1] + kx3, y[i - 1] + ky3) * dt;
+			double ky4 = dY(x[i - 1] + kx3, y[i - 1] + ky3, z[i - 1] + kz3, r) * dt;
+			double kz4 = dZ(x[i - 1] + kx3, y[i - 1] + ky3, z[i - 1] + kz3) * dt;
+
+			x[i] = x[i - 1] + kx1 / 3 + 2 * kx2 / 3 + kx3 / 3 + kx4 / 6;
+			y[i] = y[i - 1] + ky1 / 3 + 2 * ky2 / 3 + ky3 / 3 + ky4 / 6;
+			z[i] = z[i - 1] + kz1 / 3 + 2 * kz2 / 3 + kz3 / 3 + kz4 / 6;
+
 		}
 
 		return new double[][] { x, y, z };
