@@ -281,14 +281,14 @@ public class PlotViewer extends JFrame {
 						horizontalAngle = (362 + horizontalAngle) % 360;
 						calculateDirectionVectors();
 
-						setTitle("[A] <turn left>  " + verticalAngle);
+						setTitle("[A] <turn left>  " + horizontalAngle);
 						drawPlot();
 						break;
 					case 'D':
 						horizontalAngle = (358 + horizontalAngle) % 360;
 						calculateDirectionVectors();
 
-						setTitle("[D] <turn right>  " + verticalAngle);
+						setTitle("[D] <turn right>  " + horizontalAngle);
 						drawPlot();
 						break;
 					case 'Q':

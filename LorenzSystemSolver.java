@@ -11,7 +11,7 @@ public class LorenzSystemSolver {
 		case 2:
 			return rungeKuttaMethod(r, sx, sy, sz, dt, n);
 		default:
-			return simpleEulerMethod(r, sx, sy, sz, dt, n);
+			return predictorCorrectorAdamsBashforthMethod(r, sx, sy, sz, dt, n);
 		}
 	}
 
@@ -111,4 +111,55 @@ public class LorenzSystemSolver {
 		return new double[][] { x, y, z };
 	}
 
+	static double[][] predictorCorrectorAdamsBashforthMethod(double r, double sx, double sy, double sz, double dt, int n) {
+
+		if (n < 5) {
+			return backwardEulerMethod(r, sx, sy, sz, dt, n);
+		}
+
+		double[] pk = { 0, 55 * dt / 24, -59 * dt / 24, 37 * dt / 24, -9 * dt / 24 };
+		double[] ck = { 9 * dt / 24, 19 * dt / 24, -5 * dt / 24, dt / 24 };
+
+		double[][] bem = backwardEulerMethod(r, sx, sy, sz, dt, 4);
+		double[] x = new double[n], y = new double[n], z = new double[n];
+
+		System.arraycopy(bem[0], 0, x, 0, 4);
+		System.arraycopy(bem[1], 0, y, 0, 4);
+		System.arraycopy(bem[2], 0, z, 0, 4);
+
+		for (int i = 4; i < n; i++) {
+			double px = x[i - 1];
+			for (int j = 1; j <= 4; j++) {
+				px += dX(x[i - j], y[i - j]) * pk[j];
+			}
+
+			double py = y[i - 1];
+			for (int j = 1; j <= 4; j++) {
+				py += dY(x[i - j], y[i - j], z[i - j], r) * pk[j];
+			}
+
+			double pz = z[i - 1];
+			for (int j = 1; j <= 4; j++) {
+				pz += dZ(x[i - j], y[i - j], z[i - j]) * pk[j];
+			}
+
+			x[i] = x[i - 1] + dX(px, py) * ck[0];
+			for (int j = 1; j <= 3; j++) {
+				x[i] += dX(x[i - j], y[i - j]) * ck[j];
+			}
+
+			y[i] = y[i - 1] + dY(px, py, pz, r) * ck[0];
+			for (int j = 1; j <= 3; j++) {
+				y[i] += dY(x[i - j], y[i - j], z[i - j], r) * ck[j];
+			}
+
+			z[i] = z[i - 1] + dZ(px, py, pz) * ck[0];
+			for (int j = 1; j <= 3; j++) {
+				z[i] += dZ(x[i - j], y[i - j], z[i - j]) * ck[j];
+			}
+
+		}
+
+		return new double[][] { x, y, z };
+	}
 }

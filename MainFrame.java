@@ -30,9 +30,9 @@ public class MainFrame {
 		double sy = rnd.nextDouble() * 20;
 		double sz = rnd.nextDouble() * 20;
 
-		for (int i = 0; i < 3; i++) {
-			double[][] g = LorenzSystemSolver.solove(i, r, sx + i, sy + i, sz + i, 0.001, n);
-			testPlot.add(new Plot3D(g[0], g[1], g[2], 0xFF << (8 * i)));
+		for (int i = 0; i < 4; i++) {
+			double[][] g = LorenzSystemSolver.solove(i, r, sx + i * 10, sy + i * 10, sz, 0.001, n);
+			testPlot.add(new Plot3D(g[0], g[1], g[2], rnd.nextInt(0xFFFFFF)));
 
 		}
 
